@@ -1,3 +1,4 @@
+import time
 from tabulate import tabulate
 
 # Function to calculate the edit distance between two sequences
@@ -5,14 +6,13 @@ def edit_distance(seq1, seq2):
     len1, len2 = len(seq1), len(seq2)
 
     # Initialize DP table with zeros
-    # creates a list of size len2 + 1, filled with zeroes (0)  .. size of the matrix is (len1 + 1) x (len2 + 1)
-    dp = [[0 for _ in range(len2 + 1)] for _ in range(len1 + 1)] # 2D list (or matrix)
+    dp = [[0 for _ in range(len2 + 1)] for _ in range(len1 + 1)]  # 2D list (or matrix)
     track = [[0 for _ in range(len2 + 1)] for _ in range(len1 + 1)]  # To store arrows for path
 
     # Fill the first row and column (for base case: converting empty string to the other)
     for i in range(len1 + 1):
         dp[i][0] = i  # Deletion from seq1 to empty string
-        track[i][0] = 2  # Arrow   "↓"
+        track[i][0] = 2  # Arrow "↓"
 
     for j in range(len2 + 1):
         dp[0][j] = j  # Insertion into seq1 to match seq2
@@ -21,7 +21,7 @@ def edit_distance(seq1, seq2):
     # apply conditions if 2 Sequence base same no change and if not same apply min + 1
     for i in range(1, len1 + 1):
         for j in range(1, len2 + 1):
-            if seq1[i - 1] == seq2[j - 1]:  # If characters match A = A
+            if seq1[i - 1] == seq2[j - 1]:  # If characters match
                 dp[i][j] = dp[i - 1][j - 1]  # No operation needed
                 track[i][j] = 0  # Diagonal arrow (no change)
             else:
@@ -53,7 +53,7 @@ def print_combined_table(dp, track, seq1, seq2, file_name):
     table_data = []
 
     # First row: header with indices for sequence
-    index_row = [" "] + [" "] + [f"{x}" for x in range(len2 + 1)]  # j index
+    index_row = [" "] + [" "] + [f"{x}" for x in range(len2 + 1)]
     table_data.append(index_row)
 
     # Second row: sequence2 characters
@@ -71,9 +71,9 @@ def print_combined_table(dp, track, seq1, seq2, file_name):
 
     # Prepare data for the path table (showing optimal path)
     path_data = []
-    path_index_row = [" "] + [" "] + [f"{idx}" for idx in range(len2 + 1)]  # Header for j indices
+    path_index_row = [" "] + [" "] + [f"{idx}" for idx in range(len2 + 1)]
     path_data.append(path_index_row)
-    path_seq_row = ["  ", " " , " "] + list(seq2)  # Second row with sequence2 characters
+    path_seq_row = ["  ", " " , " "] + list(seq2)
     path_data.append(path_seq_row)
 
     # Initialize the path table grid with spaces
@@ -104,21 +104,25 @@ def print_combined_table(dp, track, seq1, seq2, file_name):
 
     # Write the results to a file
     with open(file_name, 'w', encoding='utf-8') as file:
-        # Write combined table (edit distances and arrows)
         file.write("Combined Table (Edit Distances and Arrows):\n")
         file.write(tabulate(table_data, tablefmt="grid") + "\n")
 
-        # Write the path table
         file.write("\nPath Table:\n")
         file.write(tabulate(path_data, tablefmt="grid") + "\n")
 
-# usage of the functions
+# Measure the time it takes for the functions to run
 seq1 = "CTCTAAAAGC"
 seq2 = "CTCAAAAGCG"
+
+start_time = time.time()
 
 # Get the edit distance and track tables
 dp_table, track_table = edit_distance(seq1, seq2)
 
+end_time = time.time()
+
 # Save the output to a file
 file_name = "edit_distance_output.txt"
 print_combined_table(dp_table, track_table, seq1, seq2, file_name)
+
+print("Time running:", end_time - start_time, "seconds")
